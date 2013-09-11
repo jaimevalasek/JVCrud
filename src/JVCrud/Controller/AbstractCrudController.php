@@ -19,27 +19,55 @@ abstract class AbstractCrudController extends AbstractActionController
     protected $viewForm; // path of the view to display the form * Require
     protected $additionalVars = array(); // additional variables to send to the view
     protected $setPaginator = true;
-    protected $itemCountPerPage = 10;
+    protected $itemCountPerPage = 2;
     protected $sessionNav;
     
     public function indexAction()
     {
         $this->getServiceLocator()->get('jv_flashmessenger');
         $pagina = $this->params()->fromQuery('pagina') ?: 1;
+        $filter = $this->params()->fromQuery();
         
         $sessionNav = $this->getSessionNav();
         $sessionNav->offsetSet('fromQuery', $this->params()->fromQuery());
         
+        $crudFilterFilter = $this->getServiceLocator()->get('jvcrud-filter-crudfilter');
         $service = $this->getService();
+        $esquemaFilter = $service->getPageFilter();
+
+        // Se existe o esquema do filtro vai gerar o filtro caso esteja corretamente configurado
+        $filterWhere = array();
+        if (count($esquemaFilter)) {
+            $filterWhere = $crudFilterFilter->extract($filter, $esquemaFilter);
+        }
+     
         if ($this->getSetPaginator()) {
             $service->usePaginator(array('itemCountPerPage' => $this->getItemCountPerPage(), 'currentPageNumber' => $pagina));
         }
         
-        $data = $service->findAll(null, 'object');
+        if (count($filterWhere)) {
+            $data = $service->findAllBy($filterWhere, null, null, 'object');
+        } else {
+            $data = $service->findAll(null, 'object');
+        }
+        
+        $pageFilter = array();
+        if (isset($esquemaFilter['values'])) 
+        {
+            foreach ($esquemaFilter['values'] as $key => $value)
+            {
+                $pageFilter[$value] = isset($filter[$value]) ? $filter[$value] : "";
+            }
+        }
+        
+        /* echo "<pre>";
+        exit(print_r($data->getTotalItemCount()));
+        echo "</pre>"; */
         
         return new ViewModel(array(
             'data' => $data,
             'pagina' => $pagina,
+            'filter' => $pageFilter,
             'additionalVars' => $this->getAdditionalVars()
         ));
     }
@@ -55,6 +83,7 @@ abstract class AbstractCrudController extends AbstractActionController
         
         // pega a classe filter url e cria a url para redirecionar
         $urlFilter = $this->getServiceLocator()->get('jvcrud-filter-url');
+        
         $fromQuery = $urlFilter->verifyUrlQueryFilter($paramsQuery);
 
         if ($request->isPost())

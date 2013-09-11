@@ -56,6 +56,7 @@ class Module implements AutoloaderProviderInterface
 	    return array(
 	        'invokables' => array(
 	            'jvcrud-filter-url' => 'JVCrud\Filter\Url',
+	            'jvcrud-filter-crudfilter' => 'JVCrud\Filter\CrudFilter',
 	        )
 	    );
 	}
