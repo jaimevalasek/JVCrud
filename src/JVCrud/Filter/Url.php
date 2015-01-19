@@ -11,14 +11,13 @@ class Url
         if (is_array($paramsQuery) && count($paramsQuery))
         {
             $fromQuery = '?';
-            foreach ($paramsQuery as $key => $value)
-            {
-                $fromQuery .= "$key=$value&";
-            }
-            
-            $fromQuery = substr($fromQuery, 0, -1);
+            $line = array_map(array($this,'map'),array_keys($paramsQuery),array_value($paramsQuery));
+            $fromQuery .= implode('&',$line);
         }
         
         return $fromQuery;
+    }
+    public function map($k,$v){
+        return "{$k}={$v}";
     }
 }
