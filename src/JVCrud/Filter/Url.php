@@ -10,9 +10,7 @@ class Url
         
         if (is_array($paramsQuery) && count($paramsQuery))
         {
-            $fromQuery = '?';
-            $line = array_map(array($this,'map'),array_keys($paramsQuery),array_value($paramsQuery));
-            $fromQuery .= implode('&',$line);
+            $fromQuery = '?'.http_build_query($paramsQuery); // http://www.php.net/manual/pt_BR/function.http-build-query.php
         }
         
         return $fromQuery;
