@@ -15,7 +15,5 @@ class Url
         
         return $fromQuery;
     }
-    public function map($k,$v){
-        return "{$k}={$v}";
-    }
+
 }
