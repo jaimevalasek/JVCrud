@@ -10,15 +10,10 @@ class Url
         
         if (is_array($paramsQuery) && count($paramsQuery))
         {
-            $fromQuery = '?';
-            foreach ($paramsQuery as $key => $value)
-            {
-                $fromQuery .= "$key=$value&";
-            }
-            
-            $fromQuery = substr($fromQuery, 0, -1);
+            $fromQuery = '?'.http_build_query($paramsQuery); // http://www.php.net/manual/pt_BR/function.http-build-query.php
         }
         
         return $fromQuery;
     }
+
 }
